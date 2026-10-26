@@ -47,3 +47,4 @@ rewrite <!-- rewrite: the idea ships by being rebuilt on a fresh feature/ branch
 ## Commit log
 
 <!-- One line per save: YYYY-MM-DD · short hash · message -->
+- 2026-10-26 · 445b276 · sandbox(client-notes-page): start exploration
