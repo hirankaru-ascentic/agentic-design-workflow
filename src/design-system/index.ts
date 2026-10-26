@@ -1,5 +1,6 @@
 export { AppShell } from "./app-shell"
 export { ClientForm } from "./client-form"
+export { ClientNotes } from "./client-notes"
 export { ClientTable } from "./client-table"
 export { DeleteClientDialog } from "./delete-client-dialog"
 export { NewClientsChart } from "./new-clients-chart"
