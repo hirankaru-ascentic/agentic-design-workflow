@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Don't let `next dev` write AGENTS.md; agent docs are added deliberately later.
+  // AGENTS.md is hand-written; stop `next dev` from inserting its own block.
   agentRules: false,
   cacheComponents: true,
   partialPrefetching: true,
