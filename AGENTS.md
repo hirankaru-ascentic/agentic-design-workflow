@@ -106,6 +106,22 @@ carry no styling of their own.
   Vercel preview. To ship an idea, rebuild it on a fresh `feature/` branch.
 - Name branches `<type>/<short-kebab-idea>`, e.g. `feature/client-notes`.
 
+## Sandbox workflow
+
+Skills live in `.agents/skills/` (`.claude/skills` links to it). Use them
+for these requests:
+
+- **`start-exploration`**: "Start exploration: <idea>". Creates
+  `sandbox/<slug>` from the latest `pre-dev` with a filled
+  `.sandbox/HANDOFF.md`.
+- **`save-my-work`**: "Save my work". Commits and pushes the current
+  `sandbox/` or `feature/` branch and shares the preview link.
+
+Every push to a `sandbox/` branch opens a draft pull request into
+`pre-dev` (`.github/workflows/sandbox-draft-pr.yml`), which carries the
+Vercel preview. `.sandbox/HANDOFF.md` records the exploration for whoever
+rebuilds it on a `feature/` branch.
+
 ## Working with non-technical users
 
 Many people using this repo are designers or product people, not developers.

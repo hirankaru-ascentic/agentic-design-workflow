@@ -1,0 +1,49 @@
+name: Sandbox draft PR
+
+on:
+  push:
+    branches:
+      - "sandbox/**"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: sandbox-draft-pr-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  draft-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Open a draft PR if none exists
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          open=$(gh pr list --repo "$REPO" --head "$BRANCH" --state open --json number --jq 'length')
+          if [ "$open" -gt 0 ]; then
+            echo "An open PR already exists for $BRANCH."
+            exit 0
+          fi
+
+          slug="${BRANCH#sandbox/}"
+          handoff="https://github.com/$REPO/blob/$BRANCH/.sandbox/HANDOFF.md"
+
+          body=$(cat <<EOF
+          This branch is for **design ideation only**. It is never merged.
+
+          - Explore the idea here and share it through the Vercel preview on this PR.
+          - To ship the idea, rebuild it on a fresh \`feature/\` branch from \`pre-dev\`.
+          - When the exploration is over, close it with \`/sandbox-close\` (coming later).
+
+          Handoff notes: [.sandbox/HANDOFF.md]($handoff)
+          EOF
+          )
+
+          gh pr create --repo "$REPO" --draft \
+            --base pre-dev --head "$BRANCH" \
+            --title "Sandbox: $slug (do not merge)" \
+            --body "$body"
