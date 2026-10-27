@@ -1,0 +1,55 @@
+# Decision Record: Test without skills
+
+- **Owner:** Hiran Karunananda
+- **Contributors:** none yet
+- **Started:** 2026-10-27
+- **Status:** open <!-- open | closed -->
+
+## Problem or goal
+
+Change the dashboard title.
+
+## Who it's for
+
+{{The people this idea serves.}}
+
+## What was built
+
+The dashboard page heading now reads "Client Overview" instead of "Dashboard".
+
+## Preview link
+
+{{Vercel preview URL for this branch.}}
+
+## Options explored and chosen option
+
+{{Optional. Each option tried, and which one was chosen and why.}}
+
+## Components used
+
+`PageHeader` (from `@/design-system`), configured through its `title` prop.
+
+## New component requests
+
+{{Components the idea needs that do not exist yet: name, props, what they build on, and why existing ones fall short.}}
+
+## Earlier Decision Records for this feature
+
+none
+
+## Figma links
+
+{{Links to related Figma files or frames.}}
+
+## Open questions
+
+{{Decisions still to make before this can ship.}}
+
+## Lift policy
+
+rewrite <!-- rewrite (default): the idea ships by being rebuilt on a fresh feature/ branch; no sandbox code is copied across. -->
+
+## Commit log
+
+<!-- Added automatically on every commit by .husky/post-commit: YYYY-MM-DD · message -->
+- 2026-10-27 · sandbox(test-no-skills): rename dashboard title to Client Overview
