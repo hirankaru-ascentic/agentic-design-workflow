@@ -1,7 +1,8 @@
-# Sandbox handoff: {{Title}}
+# Decision Record: {{Title}}
 
-- **Owner:** {{git user name}}
-- **Started:** {{YYYY-MM-DD}}
+- **Owner:** {{Owner}}
+- **Contributors:** {{Other people who shaped the idea, or "none yet".}}
+- **Started:** {{Started}}
 - **Status:** open <!-- open | closed -->
 
 ## Problem or goal
@@ -32,6 +33,10 @@
 
 {{Components the idea needs that do not exist yet: name, props, what they build on, and why existing ones fall short.}}
 
+## Earlier Decision Records for this feature
+
+{{Links to related records in `docs/decision-records/`, or "none".}}
+
 ## Figma links
 
 {{Links to related Figma files or frames.}}
@@ -42,8 +47,8 @@
 
 ## Lift policy
 
-rewrite <!-- rewrite: the idea ships by being rebuilt on a fresh feature/ branch; no sandbox code is copied across. -->
+rewrite <!-- rewrite (default): the idea ships by being rebuilt on a fresh feature/ branch; no sandbox code is copied across. -->
 
 ## Commit log
 
-<!-- One line per save: YYYY-MM-DD · short hash · message -->
+<!-- Added automatically on every commit by .husky/post-commit: YYYY-MM-DD · message -->

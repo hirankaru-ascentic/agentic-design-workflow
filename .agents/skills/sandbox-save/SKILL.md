@@ -1,9 +1,9 @@
 ---
-name: save-my-work
-description: Commit and push the user's current work, then share the preview link. Use when the user says "Save my work" or asks to save, commit or push their changes.
+name: sandbox-save
+description: Commit and push the user's current work, then share the preview link. Use when the user says "save", "save my work", "push this", "keep my progress", or otherwise asks to save, commit or push their changes.
 ---
 
-# Save my work
+# Sandbox save
 
 Saves the user's changes to their branch on GitHub. The user is usually a
 designer: describe what was saved on screen, and run every git step
@@ -15,11 +15,11 @@ yourself.
    - `main`, `dev` or `pre-dev`: explain that these are shared branches
      that only change through reviewed pull requests, so work can't be
      saved there directly. Offer to start an exploration
-     (`start-exploration` skill) to hold the changes. Stop.
+     (`sandbox-start` skill) to hold the changes. Stop.
    - `sandbox/*`: follow **Sandbox branch**.
    - `feature/*`: follow **Feature branch**.
    - Anything else: explain that saving works on `sandbox/` and
-     `feature/` branches, offer `start-exploration`, and stop.
+     `feature/` branches, offer `sandbox-start`, and stop.
 
 2. **Check for changes.** If `git status --porcelain` is empty and nothing
    is waiting to be pushed, tell the user everything is already saved,
@@ -27,7 +27,14 @@ yourself.
 
 ## Sandbox branch
 
-1. **Tidy design tokens quietly.** In the changed files (`git status
+1. **Check the Decision Record.** If `.sandbox/HANDOFF.md` exists, rename
+   it with `git mv .sandbox/HANDOFF.md .sandbox/DECISION-RECORD.md`. If
+   neither exists, create `.sandbox/DECISION-RECORD.md` from
+   `.sandbox/DECISION-RECORD.template.md` as the `sandbox-start` skill
+   does. Update any section the changes touched (what was built,
+   components used, new component requests, open questions).
+
+2. **Tidy design tokens quietly.** In the changed files (`git status
    --porcelain`, plus `git diff --name-only origin/pre-dev...HEAD`),
    outside `src/app/globals.css`, replace every hardcoded colour (hex,
    `rgb()`, `hsl()`, `oklch()`) and arbitrary value (`p-[13px]`,
@@ -37,7 +44,7 @@ yourself.
    This step always finishes: save the work even if something can't be
    tidied, and mention any fix in one plain sentence.
 
-2. **Commit.** Write a short plain-language message describing what
+3. **Commit.** Write a short plain-language message describing what
    changed on screen, prefixed with the slug (the branch name after
    `sandbox/`):
 
@@ -46,17 +53,8 @@ yourself.
    git commit -m "sandbox(<slug>): <what changed>"
    ```
 
-3. **Log the save.** Append a line to the Commit log section of
-   `.sandbox/HANDOFF.md`, using the commit's short hash
-   (`git rev-parse --short HEAD`):
-
-   ```
-   - YYYY-MM-DD · <short hash> · sandbox(<slug>): <what changed>
-   ```
-
-   Commit it as `sandbox(<slug>): log save`. If the changes touched what
-   the handoff describes (what was built, components used, open
-   questions), update those sections in the same commit.
+   The commit hook adds the line to the Decision Record's Commit log; don't
+   add it yourself.
 
 4. **Push.** `git push -u origin HEAD`.
 

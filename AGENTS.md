@@ -106,21 +106,62 @@ carry no styling of their own.
   Vercel preview. To ship an idea, rebuild it on a fresh `feature/` branch.
 - Name branches `<type>/<short-kebab-idea>`, e.g. `feature/client-notes`.
 
-## Sandbox workflow
+## Sandbox workflow (works with or without skills)
 
-Skills live in `.agents/skills/` (`.claude/skills` links to it). Use them
-for these requests:
+Skills live in `.agents/skills/` (`.claude/skills` links to it):
 
-- **`start-exploration`**: "Start exploration: <idea>". Creates
-  `sandbox/<slug>` from the latest `pre-dev` with a filled
-  `.sandbox/HANDOFF.md`.
-- **`save-my-work`**: "Save my work". Commits and pushes the current
-  `sandbox/` or `feature/` branch and shares the preview link.
+- **`sandbox-start`**: "start exploration: …", "I want to try an idea
+  for …", "new sandbox for …". Creates `sandbox/<slug>` from the latest
+  `pre-dev` with a filled `.sandbox/DECISION-RECORD.md`.
+- **`sandbox-save`**: "save", "save my work", "push this", "keep my
+  progress". Commits and pushes the current `sandbox/` or `feature/`
+  branch and shares the preview link.
 
-Every push to a `sandbox/` branch opens a draft pull request into
-`pre-dev` (`.github/workflows/sandbox-draft-pr.yml`), which carries the
-Vercel preview. `.sandbox/HANDOFF.md` records the exploration for whoever
-rebuilds it on a `feature/` branch.
+Users never type skill names. Pick the skill from what they say. If skills
+aren't available in your tool, read the matching `SKILL.md` and follow the
+same steps.
+
+The **Decision Record** (`.sandbox/DECISION-RECORD.md`, from
+`.sandbox/DECISION-RECORD.template.md`) records the exploration for whoever
+rebuilds it on a `feature/` branch. A legacy `.sandbox/HANDOFF.md` is the
+same file under its old name: rename it with `git mv` when you find it.
+Closed records are filed in `docs/decision-records/`, the Living Product
+Knowledge Base.
+
+Automation does the bookkeeping, so don't repeat it by hand:
+
+- A commit hook (`.husky/post-commit`) adds a dated line to the Decision
+  Record's Commit log on every commit on a `sandbox/` branch.
+- Every push to a `sandbox/` branch opens a draft pull request
+  "Sandbox: <slug> (do not merge)" into `pre-dev`, which carries the Vercel
+  preview, and creates the Decision Record if it is missing
+  (`.github/workflows/sandbox-draft-pr.yml`).
+
+### Rules by branch
+
+Check the branch (`git branch --show-current`) at the start of every
+session.
+
+**On `sandbox/*`:**
+
+- At session start: `git fetch origin` and merge `origin/pre-dev` into the
+  branch. On a conflict, abort the merge and explain it in plain language.
+  Then read the Decision Record (create it from the template if missing),
+  and recap the exploration to the user in one line.
+- While working: fix design-system issues (hardcoded values, missing
+  tokens) silently, and never block the user's idea on a rule. Keep the
+  Decision Record current as the work changes.
+- When the user seems done ("I'm done", "wrap this up"): offer to close
+  the exploration. Closing isn't built yet; until it is, save their work
+  and say closing is coming.
+- Never merge, never push to `main`, `dev` or `pre-dev`, and never open a
+  regular (non-draft) pull request from a `sandbox/` branch.
+
+**On `feature/*`:** run `npm run build`, `npm run lint` and
+`npm run typecheck` before every push, and report the result.
+
+**On `main`, `dev` or `pre-dev`:** don't edit files. Offer to start a
+sandbox (to explore an idea) or a feature branch (for production work).
 
 ## Working with non-technical users
 

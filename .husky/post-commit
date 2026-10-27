@@ -1,0 +1,78 @@
+# On sandbox/* branches, add "- YYYY-MM-DD · <subject>" to the Commit log
+# of .sandbox/DECISION-RECORD.md and fold it into the commit just made.
+#
+# HEAD is rewritten with plumbing (commit-tree + update-ref), which runs no
+# hooks, so this never loops and never sweeps other staged changes into the
+# commit. Anything unexpected makes it skip quietly: the commit always stands.
+
+record=.sandbox/DECISION-RECORD.md
+
+branch=$(git symbolic-ref --quiet --short HEAD) || exit 0
+case "$branch" in sandbox/*) ;; *) exit 0 ;; esac
+
+# Leave rebases, merges and cherry-picks alone.
+for state in rebase-merge rebase-apply MERGE_HEAD CHERRY_PICK_HEAD; do
+  [ -e "$(git rev-parse --git-path "$state")" ] && exit 0
+done
+
+old_blob=$(git rev-parse --quiet --verify "HEAD:$record") || exit 0
+
+subject=$(git log -1 --format=%s HEAD)
+entry="- $(date +%Y-%m-%d) · $subject"
+
+# Insert the entry at the end of the "## Commit log" section (before the next
+# heading or end of file), creating the section if it is missing.
+add_entry() {
+  awk -v entry="$entry" '
+    function flush() { for (; blanks > 0; blanks--) print "" }
+    function emit() { print entry; done = 1; inlog = 0 }
+    /^## / && inlog { emit(); if (!blanks) blanks = 1; flush() }
+    /^## Commit log[[:space:]]*$/ { inlog = 1 }
+    /^[[:space:]]*$/ { blanks++; next }
+    { flush(); print }
+    END {
+      if (inlog) emit()
+      else if (!done) { print ""; print "## Commit log"; print ""; print entry }
+    }
+  '
+}
+
+# Amending without a new message must not log the same line twice.
+git show "$old_blob" | grep -qxF -- "$entry" && exit 0
+
+tmp=$(mktemp) || exit 0
+trap 'rm -f "$tmp"' EXIT
+
+git show "$old_blob" | add_entry > "$tmp" || exit 0
+new_blob=$(git hash-object -w "$tmp") || exit 0
+
+index=$(mktemp) || exit 0
+trap 'rm -f "$tmp" "$index"' EXIT
+GIT_INDEX_FILE=$index git read-tree HEAD || exit 0
+GIT_INDEX_FILE=$index git update-index --cacheinfo "100644,$new_blob,$record" || exit 0
+tree=$(GIT_INDEX_FILE=$index git write-tree) || exit 0
+
+parents=""
+for p in $(git rev-list --parents -n 1 HEAD | cut -d' ' -f2-); do
+  parents="$parents -p $p"
+done
+
+GIT_AUTHOR_NAME=$(git log -1 --format=%an HEAD)
+GIT_AUTHOR_EMAIL=$(git log -1 --format=%ae HEAD)
+GIT_AUTHOR_DATE=$(git log -1 --format=%ad --date=raw HEAD)
+export GIT_AUTHOR_NAME GIT_AUTHOR_EMAIL GIT_AUTHOR_DATE
+
+old_head=$(git rev-parse HEAD)
+# shellcheck disable=SC2086
+new_head=$(git cat-file commit HEAD | sed '1,/^$/d' | git commit-tree "$tree" $parents) || exit 0
+git update-ref -m "sandbox: add Decision Record commit log entry" HEAD "$new_head" "$old_head" || exit 0
+
+# Mirror the change in the index and working tree so the record isn't shown
+# as modified. Unstaged edits to the record are kept.
+if [ "$(git ls-files -s -- "$record" | cut -d' ' -f2)" = "$old_blob" ]; then
+  git update-index --cacheinfo "100644,$new_blob,$record"
+fi
+if [ -f "$record" ]; then
+  add_entry < "$record" > "$tmp" && cat "$tmp" > "$record"
+fi
+exit 0
