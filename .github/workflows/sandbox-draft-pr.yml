@@ -6,7 +6,7 @@ on:
       - "sandbox/**"
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
 
 concurrency:
@@ -15,8 +15,58 @@ concurrency:
 
 jobs:
   draft-pr:
+    if: ${{ !github.event.deleted }}
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Create the Decision Record if missing
+        env:
+          BRANCH: ${{ github.ref_name }}
+          PUSHER: ${{ github.event.pusher.name || github.actor }}
+        run: |
+          record=.sandbox/DECISION-RECORD.md
+          legacy=.sandbox/HANDOFF.md
+          template=.sandbox/DECISION-RECORD.template.md
+          slug="${BRANCH#sandbox/}"
+
+          if [ -f "$record" ]; then
+            echo "$record exists."
+            exit 0
+          fi
+
+          if [ -f "$legacy" ]; then
+            git mv "$legacy" "$record"
+            message="sandbox($slug): rename handoff to Decision Record [skip ci]"
+          else
+            # Branches cut before the template existed take it from pre-dev.
+            if [ -f "$template" ]; then
+              cp "$template" "$record"
+            else
+              git show "origin/pre-dev:$template" > "$record"
+            fi
+
+            words="${slug//-/ }"
+            title="$(printf '%s' "${words:0:1}" | tr '[:lower:]' '[:upper:]')${words:1}"
+            today=$(date -u +%Y-%m-%d)
+            sed -i \
+              -e "s|{{Title}}|$title|" \
+              -e "s|{{Owner}}|$PUSHER|" \
+              -e "s|{{Started}}|$today|" \
+              "$record"
+            git add "$record"
+            message="sandbox($slug): add Decision Record [skip ci]"
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "$message"
+          git pull --rebase origin "$BRANCH"
+          git push origin "HEAD:$BRANCH"
+
       - name: Open a draft PR if none exists
         env:
           GH_TOKEN: ${{ github.token }}
@@ -30,16 +80,16 @@ jobs:
           fi
 
           slug="${BRANCH#sandbox/}"
-          handoff="https://github.com/$REPO/blob/$BRANCH/.sandbox/HANDOFF.md"
+          record="https://github.com/$REPO/blob/$BRANCH/.sandbox/DECISION-RECORD.md"
 
           body=$(cat <<EOF
           This branch is for **design ideation only**. It is never merged.
 
           - Explore the idea here and share it through the Vercel preview on this PR.
           - To ship the idea, rebuild it on a fresh \`feature/\` branch from \`pre-dev\`.
-          - When the exploration is over, close it with \`/sandbox-close\` (coming later).
+          - When the exploration is over, tell the agent you're done; closing a sandbox comes in a later phase.
 
-          Handoff notes: [.sandbox/HANDOFF.md]($handoff)
+          Decision Record: [.sandbox/DECISION-RECORD.md]($record)
           EOF
           )
 
