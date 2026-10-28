@@ -47,7 +47,7 @@
 
 ## Lift policy
 
-rewrite <!-- rewrite (default): the idea ships by being rebuilt on a fresh feature/ branch; no sandbox code is copied across. -->
+rewrite <!-- rewrite (default): the idea ships by being rebuilt on a fresh feature/ branch; no sandbox code is copied across. lift: for small visual or copy changes; the sandbox code may be copied to the feature/ branch. -->
 
 ## Commit log
 

@@ -1,0 +1,39 @@
+name: Decision Record guard
+
+# PRs from docs/decision-record-* branches only file a closed Decision Record
+# and may merge automatically, so they must not change anything else.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  guard:
+    if: ${{ startsWith(github.head_ref, 'docs/decision-record-') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Only docs/decision-records/ may change
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          # Renames list both the old and the new path, so moving a file in
+          # or out of the folder is caught too.
+          files=$(gh api --paginate "repos/$REPO/pulls/$PR/files" \
+            --jq '.[] | .filename, (.previous_filename // empty)')
+
+          outside=$(printf '%s\n' "$files" | grep -v '^docs/decision-records/' || true)
+
+          if [ -n "$outside" ]; then
+            echo "::error::This PR may only change files in docs/decision-records/. Also changed:"
+            printf '%s\n' "$outside"
+            exit 1
+          fi
+
+          echo "Only docs/decision-records/ changed:"
+          printf '%s\n' "$files"

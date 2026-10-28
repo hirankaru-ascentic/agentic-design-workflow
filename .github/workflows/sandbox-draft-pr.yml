@@ -87,7 +87,7 @@ jobs:
 
           - Explore the idea here and share it through the Vercel preview on this PR.
           - To ship the idea, rebuild it on a fresh \`feature/\` branch from \`pre-dev\`.
-          - When the exploration is over, tell the agent you're done; closing a sandbox comes in a later phase.
+          - When the exploration is over, tell the agent you're done: it completes the Decision Record, opens a build issue and closes this PR.
 
           Decision Record: [.sandbox/DECISION-RECORD.md]($record)
           EOF
