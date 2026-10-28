@@ -38,7 +38,7 @@ export default function DashboardPage() {
   return (
     <>
       <PageHeader
-        title="Dashboard"
+        title="Client Overview"
         description="An overview of your clients and contracts."
         actions={
           <Button nativeButton={false} render={<Link href="/clients/new" />}>
