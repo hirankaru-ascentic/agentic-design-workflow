@@ -3,7 +3,7 @@
 - **Owner:** hirankaru-ascentic
 - **Contributors:** none yet
 - **Started:** 2026-10-27
-- **Status:** open <!-- open | closed -->
+- **Status:** closed <!-- open | closed -->
 
 ## Problem or goal
 
@@ -11,7 +11,7 @@ Let people narrow the dashboard to one client status (Active, Paused or Churned)
 
 ## Who it's for
 
-{{The people this idea serves.}}
+People who use the dashboard to keep track of clients and contract value, for example to see how much contract value sits with paused or churned clients.
 
 ## What was built
 
@@ -19,7 +19,7 @@ A "Filter by status" dropdown next to "Add client" on the dashboard, with All st
 
 ## Preview link
 
-{{Vercel preview URL for this branch.}}
+https://agentic-design-git-edbbc6-hirankarunananda-ascenticses-projects.vercel.app
 
 ## Options explored and chosen option
 
@@ -40,11 +40,13 @@ none
 
 ## Figma links
 
-{{Links to related Figma files or frames.}}
+none
 
 ## Open questions
 
-{{Decisions still to make before this can ship.}}
+- Should the chosen filter be remembered after a reload? It currently resets to All statuses.
+- Should the filter be part of the page address so a filtered view can be shared?
+- Should the filters left out for now (time period, company, contract value) follow later?
 
 ## Lift policy
 
@@ -55,3 +57,4 @@ rewrite <!-- rewrite (default): the idea ships by being rebuilt on a fresh featu
 <!-- Added automatically on every commit by .husky/post-commit: YYYY-MM-DD · message -->
 - 2026-10-27 · sandbox(client-dashboard-filters): start exploration
 - 2026-10-28 · sandbox(client-dashboard-filters): add a status filter to the dashboard
+- 2026-10-28 · sandbox(client-dashboard-filters): close exploration
