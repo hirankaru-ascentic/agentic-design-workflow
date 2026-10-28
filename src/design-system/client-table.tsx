@@ -1,7 +1,12 @@
 "use client"
 
 import Link from "next/link"
-import { PencilIcon, SearchIcon, Trash2Icon } from "lucide-react"
+import {
+  NotebookPenIcon,
+  PencilIcon,
+  SearchIcon,
+  Trash2Icon,
+} from "lucide-react"
 import { useMemo, useState } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -179,6 +184,15 @@ export function ClientTable({
                 {isFull ? (
                   <TableCell>
                     <div className="flex justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label={`Notes for ${client.name}`}
+                        nativeButton={false}
+                        render={<Link href={`/clients/${client.id}/notes`} />}
+                      >
+                        <NotebookPenIcon />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="icon-sm"

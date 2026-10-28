@@ -18,6 +18,13 @@ separate entity: two clients at the same company are two records.
 The client's contact email. Required and must be a valid address. Not
 required to be unique.
 
+**Note** (`Note`)
+A short free-text entry about a client, such as a call summary or next step.
+Belongs to one client, stamped with when it was added (`createdAt`), and
+shown newest first on the client's notes page. Stored by the notes store
+(`src/lib/notes-store.ts`).
+_Avoid:_ comment, memo, log.
+
 ## Client fields
 
 **Status** (`ClientStatus`)

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { Trash2Icon } from "lucide-react";
+import { NotebookPenIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -15,11 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  ClientForm,
-  DeleteClientDialog,
-  PageHeader,
-} from "@/design-system";
+import { ClientForm, DeleteClientDialog, PageHeader } from "@/design-system";
 import { deleteClient, updateClient, useClient } from "@/lib/clients-store";
 
 export default function EditClientPage() {
@@ -52,20 +48,30 @@ export default function EditClientPage() {
         description={client?.company}
         actions={
           client ? (
-            <DeleteClientDialog
-              clientName={client.name}
-              onConfirm={() => {
-                deleteClient(client.id);
-                toast.success(`Deleted ${client.name}`);
-                router.push("/clients");
-              }}
-              trigger={
-                <Button variant="destructive">
-                  <Trash2Icon data-icon="inline-start" />
-                  Delete
-                </Button>
-              }
-            />
+            <>
+              <Button
+                variant="outline"
+                nativeButton={false}
+                render={<Link href={`/clients/${client.id}/notes`} />}
+              >
+                <NotebookPenIcon data-icon="inline-start" />
+                Notes
+              </Button>
+              <DeleteClientDialog
+                clientName={client.name}
+                onConfirm={() => {
+                  deleteClient(client.id);
+                  toast.success(`Deleted ${client.name}`);
+                  router.push("/clients");
+                }}
+                trigger={
+                  <Button variant="destructive">
+                    <Trash2Icon data-icon="inline-start" />
+                    Delete
+                  </Button>
+                }
+              />
+            </>
           ) : null
         }
       />
