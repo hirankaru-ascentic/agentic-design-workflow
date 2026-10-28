@@ -6,7 +6,9 @@ why.
 
 Each `sandbox/` branch keeps a Decision Record in
 `.sandbox/DECISION-RECORD.md` while the exploration is open. When the
-exploration is closed, its record is filed here, so it outlives the branch.
+exploration is closed (the `sandbox-close` skill), its record is filed
+here as `<slug>.md` by a `docs/decision-record-<slug>` pull request, so it
+outlives the branch.
 
 Before starting work on a feature, read the records here that touch it, and
 link them under **Earlier Decision Records for this feature** in the new

@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
+    "record:validate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/validate-decision-record.ts",
     "prepare": "husky"
   },
   "dependencies": {

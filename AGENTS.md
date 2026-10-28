@@ -90,13 +90,14 @@ carry no styling of their own.
 
 ## Branches and workflow
 
-| Branch           | Role                       | Created from | Ends up           |
-| ---------------- | -------------------------- | ------------ | ----------------- |
-| `main`           | Live                       | –            | –                 |
-| `dev`            | QA                         | –            | –                 |
-| `pre-dev`        | Integration                | –            | –                 |
-| `feature/<idea>` | Production work            | `pre-dev`    | PR into `pre-dev` |
-| `sandbox/<idea>` | Design ideation; throwaway | `pre-dev`    | Never merged      |
+| Branch                        | Role                           | Created from | Ends up                        |
+| ----------------------------- | ------------------------------ | ------------ | ------------------------------ |
+| `main`                        | Live                           | –            | –                              |
+| `dev`                         | QA                             | –            | –                              |
+| `pre-dev`                     | Integration                    | –            | –                              |
+| `feature/<idea>`              | Production work                | `pre-dev`    | PR into `pre-dev`              |
+| `sandbox/<idea>`              | Design ideation; throwaway     | `pre-dev`    | Never merged                   |
+| `docs/decision-record-<slug>` | Files a closed Decision Record | `pre-dev`    | PR into `pre-dev` (auto-merge) |
 
 - `main`, `dev` and `pre-dev` change only through reviewed pull requests.
   Work on a `feature/` or `sandbox/` branch and push that branch.
@@ -111,12 +112,13 @@ carry no styling of their own.
 Skills live in `.agents/skills/` (`.claude/skills` links to it). Cheat
 sheet:
 
-| The user says                                                                           | Skill              | What it does                                                                                   |
-| --------------------------------------------------------------------------------------- | ------------------ | ---------------------------------------------------------------------------------------------- |
-| "start exploration: …", "I want to try an idea for …", "new sandbox for …"              | `sandbox-start`    | Creates `sandbox/<slug>` from the latest `pre-dev` with a filled `.sandbox/DECISION-RECORD.md` |
-| "continue …", "let's keep going on …", "pick up where I left off", "back to the … idea" | `sandbox-continue` | Switches to an exploration, updates it from `pre-dev`, recaps it and shares the preview        |
-| "show my explorations", "what am I working on", "where was I"                           | `sandbox-list`     | Lists open explorations with owner, last change and preview link                               |
-| "save", "save my work", "push this", "keep my progress"                                 | `sandbox-save`     | Commits and pushes the current `sandbox/` or `feature/` branch and shares the preview link     |
+| The user says                                                                                   | Skill              | What it does                                                                                   |
+| ----------------------------------------------------------------------------------------------- | ------------------ | ---------------------------------------------------------------------------------------------- |
+| "start exploration: …", "I want to try an idea for …", "new sandbox for …"                      | `sandbox-start`    | Creates `sandbox/<slug>` from the latest `pre-dev` with a filled `.sandbox/DECISION-RECORD.md` |
+| "continue …", "let's keep going on …", "pick up where I left off", "back to the … idea"         | `sandbox-continue` | Switches to an exploration, updates it from `pre-dev`, recaps it and shares the preview        |
+| "show my explorations", "what am I working on", "where was I"                                   | `sandbox-list`     | Lists open explorations with owner, last change and preview link                               |
+| "save", "save my work", "push this", "keep my progress"                                         | `sandbox-save`     | Commits and pushes the current `sandbox/` or `feature/` branch and shares the preview link     |
+| "I'm done", "wrap this up", "close this exploration", "hand this over", "ready for development" | `sandbox-close`    | Completes the Decision Record, opens a build issue, files the record and closes the draft PR   |
 
 Users never type skill names. Pick the skill from what they say. If skills
 aren't available in your tool, read the matching `SKILL.md` and follow the
@@ -137,6 +139,12 @@ Automation does the bookkeeping, so don't repeat it by hand:
   "Sandbox: <slug> (do not merge)" into `pre-dev`, which carries the Vercel
   preview, and creates the Decision Record if it is missing
   (`.github/workflows/sandbox-draft-pr.yml`).
+- `npm run record:validate` checks a Decision Record has every required
+  field filled and no template placeholders left
+  (`scripts/validate-decision-record.ts`).
+- A PR from a `docs/decision-record-*` branch fails if it changes anything
+  outside `docs/decision-records/`
+  (`.github/workflows/decision-record-guard.yml`).
 
 ### Rules by branch
 
@@ -155,9 +163,13 @@ session.
 - While working: fix design-system issues (hardcoded values, missing
   tokens) silently, and never block the user's idea on a rule. Keep the
   Decision Record current as the work changes.
-- When the user seems done ("I'm done", "wrap this up"): offer to close
-  the exploration. Closing isn't built yet; until it is, save their work
-  and say closing is coming.
+- When the user seems done ("I'm done", "wrap this up", "hand this
+  over"): offer to close the exploration. Closing follows the
+  `sandbox-close` steps (without the skill, read its `SKILL.md`):
+  complete and validate the Decision Record, asking at most 3 short
+  questions and confirming the lift policy; open a "Build: <title>" issue;
+  file the record on a `docs/decision-record-<slug>` branch by PR into
+  `pre-dev`; close the draft PR without merging or deleting the branch.
 - Never merge, never push to `main`, `dev` or `pre-dev`, and never open a
   regular (non-draft) pull request from a `sandbox/` branch.
 
