@@ -42,12 +42,12 @@ src/
 
 ## Commands
 
-| Command             | Purpose                          |
-| ------------------- | -------------------------------- |
-| `npm run dev`       | Dev server on localhost:3000     |
-| `npm run build`     | Production build                 |
-| `npm run lint`      | ESLint                           |
-| `npm run typecheck` | Route types + `tsc --noEmit`     |
+| Command             | Purpose                      |
+| ------------------- | ---------------------------- |
+| `npm run dev`       | Dev server on localhost:3000 |
+| `npm run build`     | Production build             |
+| `npm run lint`      | ESLint                       |
+| `npm run typecheck` | Route types + `tsc --noEmit` |
 
 ## Design system rules
 
@@ -90,13 +90,13 @@ carry no styling of their own.
 
 ## Branches and workflow
 
-| Branch           | Role                                      | Created from | Ends up            |
-| ---------------- | ----------------------------------------- | ------------ | ------------------ |
-| `main`           | Live                                      | –            | –                  |
-| `dev`            | QA                                        | –            | –                  |
-| `pre-dev`        | Integration                               | –            | –                  |
-| `feature/<idea>` | Production work                           | `pre-dev`    | PR into `pre-dev`  |
-| `sandbox/<idea>` | Design ideation; throwaway                | `pre-dev`    | Never merged       |
+| Branch           | Role                       | Created from | Ends up           |
+| ---------------- | -------------------------- | ------------ | ----------------- |
+| `main`           | Live                       | –            | –                 |
+| `dev`            | QA                         | –            | –                 |
+| `pre-dev`        | Integration                | –            | –                 |
+| `feature/<idea>` | Production work            | `pre-dev`    | PR into `pre-dev` |
+| `sandbox/<idea>` | Design ideation; throwaway | `pre-dev`    | Never merged      |
 
 - `main`, `dev` and `pre-dev` change only through reviewed pull requests.
   Work on a `feature/` or `sandbox/` branch and push that branch.
@@ -108,14 +108,15 @@ carry no styling of their own.
 
 ## Sandbox workflow (works with or without skills)
 
-Skills live in `.agents/skills/` (`.claude/skills` links to it):
+Skills live in `.agents/skills/` (`.claude/skills` links to it). Cheat
+sheet:
 
-- **`sandbox-start`**: "start exploration: …", "I want to try an idea
-  for …", "new sandbox for …". Creates `sandbox/<slug>` from the latest
-  `pre-dev` with a filled `.sandbox/DECISION-RECORD.md`.
-- **`sandbox-save`**: "save", "save my work", "push this", "keep my
-  progress". Commits and pushes the current `sandbox/` or `feature/`
-  branch and shares the preview link.
+| The user says                                                                           | Skill              | What it does                                                                                   |
+| --------------------------------------------------------------------------------------- | ------------------ | ---------------------------------------------------------------------------------------------- |
+| "start exploration: …", "I want to try an idea for …", "new sandbox for …"              | `sandbox-start`    | Creates `sandbox/<slug>` from the latest `pre-dev` with a filled `.sandbox/DECISION-RECORD.md` |
+| "continue …", "let's keep going on …", "pick up where I left off", "back to the … idea" | `sandbox-continue` | Switches to an exploration, updates it from `pre-dev`, recaps it and shares the preview        |
+| "show my explorations", "what am I working on", "where was I"                           | `sandbox-list`     | Lists open explorations with owner, last change and preview link                               |
+| "save", "save my work", "push this", "keep my progress"                                 | `sandbox-save`     | Commits and pushes the current `sandbox/` or `feature/` branch and shares the preview link     |
 
 Users never type skill names. Pick the skill from what they say. If skills
 aren't available in your tool, read the matching `SKILL.md` and follow the
@@ -144,10 +145,13 @@ session.
 
 **On `sandbox/*`:**
 
-- At session start: `git fetch origin` and merge `origin/pre-dev` into the
-  branch. On a conflict, abort the merge and explain it in plain language.
-  Then read the Decision Record (create it from the template if missing),
-  and recap the exploration to the user in one line.
+- At session start, run the `sandbox-continue` steps from "Switch and
+  pull" on (without the skill, read its `SKILL.md`): pull the branch,
+  merge `origin/pre-dev` (resolve simple conflicts yourself, abort and
+  explain anything else in plain language), read the Decision Record
+  (rename a legacy `HANDOFF.md`, create it if missing), add the current
+  git user to Contributors, then recap in 2–3 lines with the preview link
+  and ask what's next.
 - While working: fix design-system issues (hardcoded values, missing
   tokens) silently, and never block the user's idea on a rule. Keep the
   Decision Record current as the work changes.
