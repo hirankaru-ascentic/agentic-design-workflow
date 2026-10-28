@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import {
   CalendarPlusIcon,
@@ -18,21 +19,46 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   ClientTable,
   NewClientsChart,
   PageHeader,
   StatCard,
 } from "@/design-system";
 import {
+  CLIENT_STATUSES,
+  STATUS_LABELS,
   getClientStats,
   getNewClientsPerMonth,
   getRecentClients,
+  type ClientStatus,
 } from "@/lib/clients";
 import { useClients } from "@/lib/clients-store";
 import { formatCurrency } from "@/lib/format";
 
+type StatusFilter = ClientStatus | "all";
+
+const statusFilterItems: { value: StatusFilter; label: string }[] = [
+  { value: "all", label: "All statuses" },
+  ...CLIENT_STATUSES.map((status) => ({
+    value: status,
+    label: STATUS_LABELS[status],
+  })),
+];
+
 export default function DashboardPage() {
-  const clients = useClients();
+  const allClients = useClients();
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const clients =
+    allClients && statusFilter !== "all"
+      ? allClients.filter((client) => client.status === statusFilter)
+      : allClients;
   const stats = clients ? getClientStats(clients) : null;
 
   return (
@@ -41,9 +67,29 @@ export default function DashboardPage() {
         title="Dashboard"
         description="An overview of your clients and contracts."
         actions={
-          <Button nativeButton={false} render={<Link href="/clients/new" />}>
-            Add client
-          </Button>
+          <>
+            <Select
+              items={statusFilterItems}
+              value={statusFilter}
+              onValueChange={(value) => {
+                if (value) setStatusFilter(value as StatusFilter);
+              }}
+            >
+              <SelectTrigger aria-label="Filter by status">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {statusFilterItems.map((item) => (
+                  <SelectItem key={item.value} value={item.value}>
+                    {item.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button nativeButton={false} render={<Link href="/clients/new" />}>
+              Add client
+            </Button>
+          </>
         }
       />
 
@@ -58,7 +104,11 @@ export default function DashboardPage() {
         <StatCard
           label="Total contract value"
           value={stats ? formatCurrency(stats.totalContractValue) : null}
-          hint="Across all clients, per year"
+          hint={
+            statusFilter === "all"
+              ? "Across all clients, per year"
+              : `Across ${STATUS_LABELS[statusFilter].toLowerCase()} clients, per year`
+          }
           icon={CircleDollarSignIcon}
         />
       </div>

@@ -7,7 +7,7 @@
 
 ## Problem or goal
 
-client dashboard filters
+Let people narrow the dashboard to one client status (Active, Paused or Churned) so they can see, for example, how much contract value sits with paused clients.
 
 ## Who it's for
 
@@ -15,7 +15,7 @@ client dashboard filters
 
 ## What was built
 
-{{What exists on screen now, in plain language.}}
+A "Filter by status" dropdown next to "Add client" on the dashboard, with All statuses, Active, Paused and Churned. Picking a status updates everything on the page together: the four summary numbers, the new-clients-per-month chart and the recent clients list. The contract value hint reads "Across paused clients, per year" (etc.) when a filter is on. The filter resets to All statuses on reload.
 
 ## Preview link
 
@@ -23,15 +23,16 @@ client dashboard filters
 
 ## Options explored and chosen option
 
-{{Optional. Each option tried, and which one was chosen and why.}}
+Filter by status only (time period, company and contract value were considered and left out for now). The filter changes the whole dashboard rather than only the numbers or only the chart and list, so the page tells one consistent story.
 
 ## Components used
 
-{{Components from `@/design-system` and `@/components/ui` this idea uses.}}
+- `@/design-system`: PageHeader, StatCard, NewClientsChart, ClientTable
+- `@/components/ui`: Select (SelectTrigger, SelectValue, SelectContent, SelectItem), Button, Card
 
 ## New component requests
 
-{{Components the idea needs that do not exist yet: name, props, what they build on, and why existing ones fall short.}}
+none
 
 ## Earlier Decision Records for this feature
 
@@ -53,3 +54,4 @@ rewrite <!-- rewrite (default): the idea ships by being rebuilt on a fresh featu
 
 <!-- Added automatically on every commit by .husky/post-commit: YYYY-MM-DD · message -->
 - 2026-10-27 · sandbox(client-dashboard-filters): start exploration
+- 2026-10-28 · sandbox(client-dashboard-filters): add a status filter to the dashboard
