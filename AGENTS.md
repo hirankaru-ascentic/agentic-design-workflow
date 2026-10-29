@@ -48,6 +48,7 @@ src/
 | `npm run build`     | Production build             |
 | `npm run lint`      | ESLint                       |
 | `npm run typecheck` | Route types + `tsc --noEmit` |
+| `npm run ds:audit`  | Design system rules check    |
 
 ## Design system rules
 
@@ -145,6 +146,24 @@ Automation does the bookkeeping, so don't repeat it by hand:
 - A PR from a `docs/decision-record-*` branch fails if it changes anything
   outside `docs/decision-records/`
   (`.github/workflows/decision-record-guard.yml`).
+- Every other non-sandbox PR into `pre-dev` runs lint, typecheck, build
+  and `ds:audit` (`.github/workflows/feature-checks.yml`).
+- A Claude Code hook blocks file edits while `main`, `dev` or `pre-dev` is
+  checked out (`.claude/hooks/protect-shared-branches.sh`).
+
+### Sub-agents
+
+Claude Code delegates focused work to sub-agents in `.claude/agents/`; the
+skills say when. Tools without sub-agents follow the agent's file as
+instructions instead.
+
+| Sub-agent          | Model  | Does                                                   |
+| ------------------ | ------ | ------------------------------------------------------ |
+| `sandbox-explorer` | sonnet | Builds pages and design options on a `sandbox/` branch |
+| `sandbox-recorder` | haiku  | Keeps and completes Decision Records                   |
+| `build-developer`  | sonnet | Production builds from a Decision Record and plan      |
+| `ds-guardian`      | haiku  | Read-only design system review                         |
+| `ds-a11y-checker`  | haiku  | Read-only accessibility review                         |
 
 ### Rules by branch
 
@@ -160,9 +179,11 @@ session.
   (rename a legacy `HANDOFF.md`, create it if missing), add the current
   git user to Contributors, then recap in 2–3 lines with the preview link
   and ask what's next.
-- While working: fix design-system issues (hardcoded values, missing
-  tokens) silently, and never block the user's idea on a rule. Keep the
-  Decision Record current as the work changes.
+- While working: delegate building pages and options to the
+  `sandbox-explorer` sub-agent. Fix design-system issues (hardcoded
+  values, missing tokens) silently, and never block the user's idea on a
+  rule. Keep the Decision Record current as the work changes
+  (`sandbox-recorder`).
 - When the user seems done ("I'm done", "wrap this up", "hand this
   over"): offer to close the exploration. Closing follows the
   `sandbox-close` steps (without the skill, read its `SKILL.md`):
@@ -173,11 +194,31 @@ session.
 - Never merge, never push to `main`, `dev` or `pre-dev`, and never open a
   regular (non-draft) pull request from a `sandbox/` branch.
 
-**On `feature/*`:** run `npm run build`, `npm run lint` and
-`npm run typecheck` before every push, and report the result.
+**On `feature/*`:**
 
-**On `main`, `dev` or `pre-dev`:** don't edit files. Offer to start a
-sandbox (to explore an idea) or a feature branch (for production work).
+- Build from a closed Decision Record in `docs/decision-records/` and its
+  build issue (`build-start`). Use the `sandbox/` branch as reference only:
+  never merge, rebase onto or cherry-pick from it. Copy its code only when
+  the record's Lift policy is `lift`, then clean it up.
+- Build only new components ticked as approved on the build issue.
+- Production quality: data through `clients-store`, loading, empty and
+  error states, accessibility, and every design system rule.
+- Run `npm run build`, `npm run lint`, `npm run typecheck` and
+  `npm run ds:audit` before every push, and report the result.
+- Open the pull request into `pre-dev` with `build-pr`.
+
+**On `main`, `dev` or `pre-dev`:** don't edit files (a hook enforces this
+in Claude Code). Offer to start a sandbox (to explore an idea) or a
+feature branch (for production work).
+
+## Developer workflow
+
+Developers turn a closed exploration into production code. Cheat sheet:
+
+| The user says                                                                   | Skill         | What it does                                                                                               |
+| ------------------------------------------------------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------- |
+| "start build from issue #…", "pick up the build issue for …", "build the … feature" | `build-start` | Checks component approvals, creates `feature/<slug>` from `pre-dev`, plans from the Decision Record, builds |
+| "open a PR", "ready for review", "submit this"                                  | `build-pr`    | Runs all checks and reviews, pushes, opens a PR into `pre-dev` that closes the build issue                 |
 
 ## Working with non-technical users
 
@@ -193,12 +234,13 @@ Many people using this repo are designers or product people, not developers.
 
 ## Definition of done (feature branches)
 
-A `feature/` branch is done when all three pass with no errors:
+A `feature/` branch is done when all four pass with no errors:
 
 ```bash
 npm run build
 npm run lint
 npm run typecheck
+npm run ds:audit
 ```
 
 Run them before opening or updating a pull request, and report the result.

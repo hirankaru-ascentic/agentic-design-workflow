@@ -56,6 +56,10 @@ line, ask only what you can't work out, and run every git step yourself.
      `docs/decision-records/`, or `none`.
    - **Figma links:** links found in the record, commits or PR, or `none`.
 
+   Delegate this step to the `sandbox-recorder` sub-agent ("complete"),
+   passing the preview URL and draft PR link from step 2; its report lists
+   the gaps for step 4. Without sub-agents, do it yourself.
+
 4. **Ask what you can't work out.** In one message, ask at most 3 short
    questions, only about gaps: the goal (if the record still has the bare
    idea), who it's for, open questions before it can ship. If the record
