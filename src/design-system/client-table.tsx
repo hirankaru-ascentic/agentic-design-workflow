@@ -23,24 +23,14 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import {
-  CLIENT_STATUSES,
-  STATUS_LABELS,
+  STATUS_FILTER_ITEMS,
+  filterClientsByStatus,
   type Client,
-  type ClientStatus,
+  type StatusFilter,
 } from "@/lib/clients"
 import { formatCurrency, formatDate } from "@/lib/format"
 import { DeleteClientDialog } from "@/design-system/delete-client-dialog"
 import { StatusBadge } from "@/design-system/status-badge"
-
-type StatusFilter = ClientStatus | "all"
-
-const statusFilterItems = [
-  { value: "all", label: "All statuses" },
-  ...CLIENT_STATUSES.map((status) => ({
-    value: status,
-    label: STATUS_LABELS[status],
-  })),
-]
 
 export function ClientTable({
   clients,
@@ -60,14 +50,13 @@ export function ClientTable({
   const rows = useMemo(() => {
     if (!clients || !isFull) return clients
     const q = query.trim().toLowerCase()
-    return clients
+    return filterClientsByStatus(clients, status)
       .filter(
         (client) =>
-          (status === "all" || client.status === status) &&
-          (!q ||
-            client.name.toLowerCase().includes(q) ||
-            client.company.toLowerCase().includes(q) ||
-            client.email.toLowerCase().includes(q))
+          !q ||
+          client.name.toLowerCase().includes(q) ||
+          client.company.toLowerCase().includes(q) ||
+          client.email.toLowerCase().includes(q)
       )
       .sort((a, b) => b.startDate.localeCompare(a.startDate))
   }, [clients, isFull, query, status])
@@ -93,7 +82,7 @@ export function ClientTable({
             />
           </div>
           <Select
-            items={statusFilterItems}
+            items={STATUS_FILTER_ITEMS}
             value={status}
             onValueChange={(value) => setStatus((value as StatusFilter) ?? "all")}
           >
@@ -101,7 +90,7 @@ export function ClientTable({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {statusFilterItems.map((item) => (
+              {STATUS_FILTER_ITEMS.map((item) => (
                 <SelectItem key={item.value} value={item.value}>
                   {item.label}
                 </SelectItem>
