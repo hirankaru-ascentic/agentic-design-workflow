@@ -19,8 +19,9 @@ values and page imports, so don't repeat those. Look for what it can't see:
    that an existing component in `@/design-system` or `@/components/ui`
    already covers, by use, a variant or props, or composition.
 3. **Component home.** Shared components live in `src/design-system/`, are
-   exported from `src/design-system/index.ts`, and take their styling from
-   tokens. Primitives in `src/components/ui/` are not hand-edited without
+   exported from `src/design-system/index.ts`, take their styling from
+   tokens, and have stories covering their variants and states, including
+   dark. On `feature/*`, nothing remains in `src/design-system/proposals/`. Primitives in `src/components/ui/` are not hand-edited without
    reason.
 4. **Tokens.** A new token in `src/app/globals.css` is defined in both
    `:root` and `.dark` and mapped in `@theme inline`.

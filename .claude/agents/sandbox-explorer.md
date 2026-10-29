@@ -15,10 +15,16 @@ before starting.
 1. Check `git branch --show-current` is a `sandbox/*` branch. If not, stop
    and report back.
 2. Read `.sandbox/DECISION-RECORD.md` for the goal and what exists so far.
-3. Build the idea with the decision ladder in `AGENTS.md`: use, configure
-   or compose components from `@/design-system` and `@/components/ui`.
-   When nothing fits, you may write a small component inside the page to
-   show the idea, and report it as a new component request.
+3. Check the catalogue before building any UI: the exports in
+   `src/design-system/index.ts`, the primitives in `src/components/ui/`,
+   and their stories (`*.stories.tsx`), which show every variant and
+   state. Then climb the decision ladder in `AGENTS.md`: use an existing
+   component, configure it through a variant or props, or compose
+   existing ones. When nothing fits, follow the `ds-component-request`
+   skill (`.agents/skills/ds-component-request/SKILL.md`): build a
+   proposal in `src/design-system/proposals/<Name>/` with a story, use it
+   only on this sandbox, and add it to the Decision Record's New
+   component requests.
 4. Use tokens and the Tailwind scale. Replace any hardcoded colour or
    arbitrary value you write with a token; when none fits, add one to
    `src/app/globals.css` in both `:root` and `.dark`.
@@ -33,5 +39,6 @@ before starting.
 
 In a few plain lines: what is on screen now and how to reach each option,
 the components used (grouped by `@/design-system` and `@/components/ui`),
-any new component request (name, props, pieces it builds on, why existing
-ones fall short), and anything you couldn't do.
+any proposal you built (name, why existing ones fall short, where it's
+used) with a one-line message for the user, and anything you couldn't
+do.

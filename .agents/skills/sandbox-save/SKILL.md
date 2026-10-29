@@ -77,9 +77,9 @@ yourself.
 ## Feature branch
 
 1. **Check the build.** Run `npm run build`, `npm run lint`,
-   `npm run typecheck` and `npm run ds:audit`. Fix every error the changes
-   caused and rerun until all four pass. Errors you can't fix: list them in plain language and
-   continue.
+   `npm run typecheck`, `npm run ds:audit` and `npm run stories:check`. Fix
+   every error the changes caused and rerun until all five pass. Errors
+   you can't fix: list them in plain language and continue.
 
 2. **Commit and push** with a short plain-language message describing the
    change:

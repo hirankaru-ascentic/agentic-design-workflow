@@ -12,7 +12,7 @@ value…) are defined in `CONTEXT.md`; read it before naming anything.
 
 **Stack:** Next.js 16 (App Router, TypeScript, Cache Components on),
 Tailwind CSS v4, shadcn/ui `base-nova` style on Base UI, Recharts,
-next-themes, npm.
+next-themes, Storybook 10 (component catalogue), npm.
 
 **Next.js 16 differs from your training data.** Before writing Next.js code,
 read the relevant guide in `node_modules/next/dist/docs/`. Two gotchas this
@@ -35,6 +35,7 @@ src/
 ├── app/               # Routes. globals.css holds every design token
 ├── components/ui/     # shadcn/ui primitives
 ├── design-system/     # Shared app components, exported from index.ts
+│   └── proposals/     # Unapproved component proposals (sandbox/* only)
 ├── data/              # Seed data (25 clients)
 ├── hooks/             # Shared React hooks
 └── lib/               # clients-store (data access), domain helpers, format
@@ -42,13 +43,16 @@ src/
 
 ## Commands
 
-| Command             | Purpose                      |
-| ------------------- | ---------------------------- |
-| `npm run dev`       | Dev server on localhost:3000 |
-| `npm run build`     | Production build             |
-| `npm run lint`      | ESLint                       |
-| `npm run typecheck` | Route types + `tsc --noEmit` |
-| `npm run ds:audit`  | Design system rules check    |
+| Command                   | Purpose                                         |
+| ------------------------- | ----------------------------------------------- |
+| `npm run dev`             | Dev server on localhost:3000                    |
+| `npm run build`           | Production build                                |
+| `npm run lint`            | ESLint                                          |
+| `npm run typecheck`       | Route types + `tsc --noEmit`                    |
+| `npm run ds:audit`        | Design system rules check                       |
+| `npm run storybook`       | Component catalogue on localhost:6006           |
+| `npm run build-storybook` | Static catalogue build                          |
+| `npm run stories:check`   | Every design-system component has a story       |
 
 ## Design system rules
 
@@ -66,21 +70,31 @@ both `:root` and `.dark`, then use it.
 
 ### Decision ladder
 
-Before creating any UI, climb this ladder and stop at the first rung that
-fits:
+Before creating any UI, check the catalogue: the exports in
+`src/design-system/index.ts`, the primitives in `src/components/ui/`, and
+their stories (`*.stories.tsx` next to each component, browsable with
+`npm run storybook`). The stories show every variant and state. Then climb
+this ladder and stop at the first rung that fits:
 
 1. **Use it.** The component exists in `@/design-system` or
    `@/components/ui`.
-2. **Configure it.** An existing component covers it through a variant or
-   props.
+2. **Configure it.** A variant or props shown in its stories cover it.
 3. **Compose it.** Build it by combining existing components.
-4. **Propose it.** Stop and propose a new component: name, props, which
-   existing pieces it builds on, and why rungs 1–3 fall short. Wait for
-   approval before writing it.
+4. **Propose it.** Nothing fits:
+   - On a `sandbox/` branch, follow the `ds-component-request` skill:
+     build it as a proposal in `src/design-system/proposals/<Name>/` with
+     a story, use it only in the sandbox, and record it in the Decision
+     Record. Don't stop the user's idea for approval.
+   - Anywhere else, stop and propose it: name, props, which existing
+     pieces it builds on, and why rungs 1–3 fall short. Wait for approval
+     before writing it.
 
-An approved app component goes in `src/design-system/` and is exported from
-`src/design-system/index.ts`. Add a new shadcn primitive with
-`npx shadcn@latest add <name>`.
+An approved app component goes in `src/design-system/`, is exported from
+`src/design-system/index.ts`, and has a `<file>.stories.tsx` covering its
+variants and states in light and dark (`npm run stories:check` fails
+without one). Proposals never reach a `feature/` branch: `ds:audit` fails
+on `src/design-system/proposals/` outside `sandbox/*`. Add a new shadcn
+primitive with `npx shadcn@latest add <name>`.
 
 ### Pages assemble
 
@@ -125,6 +139,10 @@ Users never type skill names. Pick the skill from what they say. If skills
 aren't available in your tool, read the matching `SKILL.md` and follow the
 same steps.
 
+Agents also use `ds-component-request` on their own, never on a user's
+request: on a `sandbox/` branch, when nothing in the catalogue fits (rung 4
+of the decision ladder), it builds a component proposal and records it.
+
 The **Decision Record** (`.sandbox/DECISION-RECORD.md`, from
 `.sandbox/DECISION-RECORD.template.md`) records the exploration for whoever
 rebuilds it on a `feature/` branch. A legacy `.sandbox/HANDOFF.md` is the
@@ -146,8 +164,9 @@ Automation does the bookkeeping, so don't repeat it by hand:
 - A PR from a `docs/decision-record-*` branch fails if it changes anything
   outside `docs/decision-records/`
   (`.github/workflows/decision-record-guard.yml`).
-- Every other non-sandbox PR into `pre-dev` runs lint, typecheck, build
-  and `ds:audit` (`.github/workflows/feature-checks.yml`).
+- Every other non-sandbox PR into `pre-dev` runs lint, typecheck, build,
+  `ds:audit`, `stories:check` and the Storybook build
+  (`.github/workflows/feature-checks.yml`).
 - A Claude Code hook blocks file edits while `main`, `dev` or `pre-dev` is
   checked out (`.claude/hooks/protect-shared-branches.sh`).
 
@@ -200,11 +219,14 @@ session.
   build issue (`build-start`). Use the `sandbox/` branch as reference only:
   never merge, rebase onto or cherry-pick from it. Copy its code only when
   the record's Lift policy is `lift`, then clean it up.
-- Build only new components ticked as approved on the build issue.
+- Build only new components ticked as approved on the build issue: each
+  goes into `src/design-system/` with its stories first, then the feature
+  uses it. Ask before continuing when one isn't ticked.
 - Production quality: data through `clients-store`, loading, empty and
   error states, accessibility, and every design system rule.
-- Run `npm run build`, `npm run lint`, `npm run typecheck` and
-  `npm run ds:audit` before every push, and report the result.
+- Run `npm run build`, `npm run lint`, `npm run typecheck`,
+  `npm run ds:audit` and `npm run stories:check` before every push, and
+  report the result.
 - Open the pull request into `pre-dev` with `build-pr`.
 
 **On `main`, `dev` or `pre-dev`:** don't edit files (a hook enforces this
@@ -234,13 +256,14 @@ Many people using this repo are designers or product people, not developers.
 
 ## Definition of done (feature branches)
 
-A `feature/` branch is done when all four pass with no errors:
+A `feature/` branch is done when all five pass with no errors:
 
 ```bash
 npm run build
 npm run lint
 npm run typecheck
 npm run ds:audit
+npm run stories:check
 ```
 
 Run them before opening or updating a pull request, and report the result.

@@ -30,7 +30,9 @@ user answers, chosen option, lift policy).
    ```
 
    Collect imports from `@/design-system` and `@/components/ui/*` in the
-   changed files, and note components written inside pages or added to
+   changed files, and note new component proposals: folders in
+   `src/design-system/proposals/` (recorded as the `ds-component-request`
+   skill describes), and components written inside pages or added to
    `src/design-system/` or `src/components/ui/` on this branch.
 3. **Update:** rewrite only the sections the work touched: What was built,
    Options explored, Components used, New component requests, Open

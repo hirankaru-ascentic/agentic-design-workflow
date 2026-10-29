@@ -30,9 +30,10 @@ design system and accessibility, pushes, and opens a pull request into
    npm run typecheck
    npm run build
    npm run ds:audit
+   npm run stories:check
    ```
 
-   Fix every failure and rerun until all four pass. If one can't be fixed,
+   Fix every failure and rerun until all five pass. If one can't be fixed,
    report it with its output and ask whether to open the PR as a draft or
    stop.
 
@@ -80,7 +81,7 @@ design system and accessibility, pushes, and opens a pull request into
 
    ## Checks
 
-   lint ✓ · typecheck ✓ · build ✓ · ds:audit ✓
+   lint ✓ · typecheck ✓ · build ✓ · ds:audit ✓ · stories:check ✓
    EOF
    ```
 
@@ -91,6 +92,6 @@ design system and accessibility, pushes, and opens a pull request into
    results, and that the Feature checks workflow reruns the same checks on
    GitHub. The PR merges into `pre-dev` only after review.
 
-Done when all four checks pass (or the user chose a draft), the branch is
+Done when all five checks pass (or the user chose a draft), the branch is
 pushed, and the PR into `pre-dev` says `Closes #<issue>` and links the
 Decision Record and preview.

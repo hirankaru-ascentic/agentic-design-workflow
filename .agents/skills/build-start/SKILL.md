@@ -24,10 +24,11 @@ step yourself.
    the branch name in the issue's "Sandbox branch" link, after `sandbox/`.
 
 2. **Check component approvals.** In the issue's "New components to build"
-   section, a ticked `- [x]` item is approved and an unticked `- [ ]` item
-   is not. If any are unticked, list them and ask how to proceed, with a
-   recommendation:
-   - Wait: stop here until someone ticks them on the issue.
+   section, each `Approve new component: <Name> (UX/UI designer)` item is
+   approved when ticked (`- [x]`) and not approved when unticked
+   (`- [ ]`). If any are unticked, list them and ask how to proceed before
+   continuing, with a recommendation:
+   - Wait: stop here until the UX/UI designer ticks them on the issue.
    - Build without them: compose existing components instead and note
      the gap in the PR.
    - Treat them as approved: tick them on the issue
@@ -64,9 +65,10 @@ step yourself.
 6. **Share a short plan and wait for approval.** In under 15 lines:
    - What changes on screen, in the record's words.
    - Lift policy and what it means here.
-   - Each piece of UI and its rung on the decision ladder (`AGENTS.md`):
+   - Each piece of UI and its rung on the decision ladder (`AGENTS.md`),
+     checked against `src/design-system/index.ts` and the stories:
      existing component used, configured or composed, or an approved new
-     component (name, props, home in `src/design-system/`).
+     component (name, props, file in `src/design-system/`, its stories).
    - Data: which `clients-store` functions are used or added.
    - Loading, empty and error states, and accessibility notes.
    - Each open question from the record with a proposed answer.
@@ -78,20 +80,38 @@ step yourself.
    behind, and commit them unchanged so the PR can say what was lifted:
 
    ```bash
-   git diff origin/pre-dev...origin/sandbox/<slug> -- src | git apply --3way
+   git diff origin/pre-dev...origin/sandbox/<slug> -- src ':!src/design-system/proposals' | git apply --3way
    git add -A
    git commit -m "feat(<slug>): lift sandbox changes from sandbox/<slug>"
    ```
 
    Resolve any conflicts in favour of the current `pre-dev` code. Skip
-   files the plan doesn't use.
+   files the plan doesn't use. Proposals stay behind: step 8 rebuilds the
+   approved ones, so point lifted imports of
+   `@/design-system/proposals/<Name>` at `@/design-system`.
 
-8. **Build.** Delegate to the `build-developer` sub-agent with the record
-   path, the approved plan, the lift policy and `origin/sandbox/<slug>`.
-   Without sub-agents, follow `.claude/agents/build-developer.md` yourself.
+8. **Build approved components first.** For each ticked component, read
+   its proposal on the sandbox
+   (`git show origin/sandbox/<slug>:src/design-system/proposals/<Name>/<name>.tsx`
+   and its story) as reference, then build it properly:
+   - `src/design-system/<name>.tsx`, production quality, without the
+     `PROPOSAL` comment, exported from `src/design-system/index.ts`.
+   - `src/design-system/<name>.stories.tsx` (title
+     `Design system/<Name>`) covering every variant and state, with a
+     `Dark` story, written before the feature uses the component.
 
-9. **Check and commit.** Run `npm run lint`, `npm run typecheck`,
-   `npm run build` and `npm run ds:audit`; fix what fails and rerun. Then:
+   Nothing goes in `src/design-system/proposals/` on a feature branch:
+   `ds:audit` fails on it. Run `npm run stories:check`, and commit each
+   component on its own: `feat(<slug>): add <Name> to the design system`.
+
+9. **Build the feature.** Delegate to the `build-developer` sub-agent with
+   the record path, the approved plan, the lift policy and
+   `origin/sandbox/<slug>`. Without sub-agents, follow
+   `.claude/agents/build-developer.md` yourself.
+
+10. **Check and commit.** Run `npm run lint`, `npm run typecheck`,
+   `npm run build`, `npm run ds:audit` and `npm run stories:check`; fix
+   what fails and rerun. Then:
 
    ```bash
    git add -A
@@ -100,11 +120,11 @@ step yourself.
 
    Don't push yet: the `build-pr` skill pushes once the work is reviewed.
 
-10. **Tell the user** in 3–4 lines: what was built, the check results,
+11. **Tell the user** in 3–4 lines: what was built, the check results,
     anything that differs from the plan, and that saying "open a PR" runs
     the reviews and opens the pull request. To try it, run `npm run dev`
     and open http://localhost:3000.
 
 Done when `feature/<slug>` exists from the latest `pre-dev`, holds a build
-of the approved plan that passes all four checks, and the user has the
+of the approved plan that passes all five checks, and the user has the
 summary.

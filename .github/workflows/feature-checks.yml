@@ -1,6 +1,7 @@
 name: Feature checks
 
-# Every PR into pre-dev must build and follow the design system rules.
+# Every PR into pre-dev must build, follow the design system rules and have
+# a Storybook story for every design-system component.
 # docs/decision-record-* PRs only file a Decision Record (see
 # decision-record-guard.yml), and sandbox/* draft PRs are never merged, so
 # both are skipped.
@@ -34,3 +35,5 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
       - run: npm run ds:audit
+      - run: npm run stories:check
+      - run: npm run build-storybook

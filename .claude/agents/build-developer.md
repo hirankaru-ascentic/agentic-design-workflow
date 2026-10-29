@@ -24,9 +24,12 @@ changing course.
 - **Lift policy.** `rewrite`: write the code fresh from the record and the
   plan. `lift`: the caller has already applied the sandbox's `src/`
   changes; clean them up to the rules below rather than starting over.
-- **Design system.** Climb the decision ladder in `AGENTS.md`. Only build a
-  new component when the plan names it as approved, put it in
-  `src/design-system/` and export it from `src/design-system/index.ts`.
+- **Design system.** Check `src/design-system/index.ts` and the stories,
+  then climb the decision ladder in `AGENTS.md`. Only build a new
+  component when the plan names it as approved: put it in
+  `src/design-system/`, export it from `src/design-system/index.ts`, and
+  write its `<file>.stories.tsx` (variants, states, a `Dark` story) before
+  using it. Never add files under `src/design-system/proposals/`.
   Pages only assemble components and carry no styling. Tokens only: no
   hardcoded colours or arbitrary values.
 - **Data.** Read and write clients only through
@@ -44,9 +47,9 @@ changing course.
 
 ## Before reporting
 
-Run `npm run lint`, `npm run typecheck`, `npm run build` and
-`npm run ds:audit`, and fix every error your changes caused. Don't commit:
-the caller does.
+Run `npm run lint`, `npm run typecheck`, `npm run build`,
+`npm run ds:audit` and `npm run stories:check`, and fix every error your
+changes caused. Don't commit: the caller does.
 
 ## Report back
 
