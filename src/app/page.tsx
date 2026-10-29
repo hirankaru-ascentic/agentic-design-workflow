@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import {
   CalendarPlusIcon,
@@ -18,22 +19,37 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   ClientTable,
   NewClientsChart,
   PageHeader,
   StatCard,
 } from "@/design-system";
 import {
+  STATUS_FILTER_ITEMS,
+  STATUS_LABELS,
+  filterClientsByStatus,
   getClientStats,
   getNewClientsPerMonth,
   getRecentClients,
+  type StatusFilter,
 } from "@/lib/clients";
 import { useClients } from "@/lib/clients-store";
 import { formatCurrency } from "@/lib/format";
 
 export default function DashboardPage() {
-  const clients = useClients();
+  const allClients = useClients();
+  const [status, setStatus] = useState<StatusFilter>("all");
+  const clients = allClients ? filterClientsByStatus(allClients, status) : null;
   const stats = clients ? getClientStats(clients) : null;
+  const scope =
+    status === "all" ? "all" : STATUS_LABELS[status].toLowerCase();
 
   return (
     <>
@@ -41,9 +57,27 @@ export default function DashboardPage() {
         title="Dashboard"
         description="An overview of your clients and contracts."
         actions={
-          <Button nativeButton={false} render={<Link href="/clients/new" />}>
-            Add client
-          </Button>
+          <>
+            <Select
+              items={STATUS_FILTER_ITEMS}
+              value={status}
+              onValueChange={(value) => setStatus((value as StatusFilter) ?? "all")}
+            >
+              <SelectTrigger aria-label="Filter by status">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUS_FILTER_ITEMS.map((item) => (
+                  <SelectItem key={item.value} value={item.value}>
+                    {item.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button nativeButton={false} render={<Link href="/clients/new" />}>
+              Add client
+            </Button>
+          </>
         }
       />
 
@@ -58,7 +92,7 @@ export default function DashboardPage() {
         <StatCard
           label="Total contract value"
           value={stats ? formatCurrency(stats.totalContractValue) : null}
-          hint="Across all clients, per year"
+          hint={`Across ${scope} clients, per year`}
           icon={CircleDollarSignIcon}
         />
       </div>

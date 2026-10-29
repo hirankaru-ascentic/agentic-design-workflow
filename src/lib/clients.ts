@@ -22,6 +22,18 @@ export const STATUS_LABELS: Record<ClientStatus, string> = {
   churned: "Churned",
 }
 
+/** A status to narrow a list of clients to, or `all` for no filter. */
+export type StatusFilter = ClientStatus | "all"
+
+export const STATUS_FILTER_ITEMS: { value: StatusFilter; label: string }[] = [
+  { value: "all", label: "All statuses" },
+  ...CLIENT_STATUSES.map((status) => ({ value: status, label: STATUS_LABELS[status] })),
+]
+
+export function filterClientsByStatus(clients: Client[], status: StatusFilter): Client[] {
+  return status === "all" ? clients : clients.filter((c) => c.status === status)
+}
+
 export type ClientStats = {
   total: number
   active: number
