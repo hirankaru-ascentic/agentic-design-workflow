@@ -35,9 +35,11 @@ line, ask only what you can't work out, and run every git step yourself.
    ```
 
    Read the changed files under `src/` and collect their imports from
-   `@/design-system` and `@/components/ui/*`. Note any component written
-   inside a page or added to `src/design-system/` or `src/components/ui/`
-   on this branch: those are new component proposals.
+   `@/design-system` and `@/components/ui/*`. New component proposals
+   are the folders in `src/design-system/proposals/` (from the
+   `ds-component-request` skill), plus any component written inside a page
+   or added to `src/design-system/` or `src/components/ui/` on this
+   branch.
 
 3. **Complete the Decision Record.** If `.sandbox/HANDOFF.md` exists,
    rename it with `git mv .sandbox/HANDOFF.md .sandbox/DECISION-RECORD.md`;
@@ -49,12 +51,17 @@ line, ask only what you can't work out, and run every git step yourself.
    - **Preview link:** the Vercel preview URL.
    - **Components used:** one bullet per component, grouped under
      `@/design-system` and `@/components/ui`.
-   - **New component requests:** for each proposal, its name, props, the
-     pieces it builds on and why existing components fall short (the
-     ladder's rung 4 in `AGENTS.md`), or `none`.
+   - **New component requests:** for each proposal, its name, why
+     existing components fall short (the ladder's rung 4 in `AGENTS.md`),
+     where it's used, the pieces it builds on and its props, as the
+     `ds-component-request` skill writes them, or `none`.
    - **Earlier Decision Records for this feature:** related files in
      `docs/decision-records/`, or `none`.
    - **Figma links:** links found in the record, commits or PR, or `none`.
+
+   Delegate this step to the `sandbox-recorder` sub-agent ("complete"),
+   passing the preview URL and draft PR link from step 2; its report lists
+   the gaps for step 4. Without sub-agents, do it yourself.
 
 4. **Ask what you can't work out.** In one message, ask at most 3 short
    questions, only about gaps: the goal (if the record still has the bare
@@ -107,7 +114,11 @@ line, ask only what you can't work out, and run every git step yourself.
 
    ## New components to build
 
-   - [ ] <Name>: <one line>        (or "None.")
+   - [ ] Approve new component: <Name> (UX/UI designer)
+     <one line: why it's needed and where it's used; the proposal is in
+     `src/design-system/proposals/<Name>/` on the sandbox branch>
+
+   (one checklist item per New component request, or "None.")
 
    ## Links
 

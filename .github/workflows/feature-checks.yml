@@ -1,0 +1,39 @@
+name: Feature checks
+
+# Every PR into pre-dev must build, follow the design system rules and have
+# a Storybook story for every design-system component.
+# docs/decision-record-* PRs only file a Decision Record (see
+# decision-record-guard.yml), and sandbox/* draft PRs are never merged, so
+# both are skipped.
+
+on:
+  pull_request:
+    branches: [pre-dev]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: feature-checks-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    if: ${{ !startsWith(github.head_ref, 'docs/decision-record-') && !startsWith(github.head_ref, 'sandbox/') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm run ds:audit
+      - run: npm run stories:check
+      - run: npm run build-storybook

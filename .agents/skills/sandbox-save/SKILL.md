@@ -32,7 +32,8 @@ yourself.
    neither exists, create `.sandbox/DECISION-RECORD.md` from
    `.sandbox/DECISION-RECORD.template.md` as the `sandbox-start` skill
    does. Update any section the changes touched (what was built,
-   components used, new component requests, open questions).
+   components used, new component requests, open questions): delegate
+   this to the `sandbox-recorder` sub-agent ("update") when available.
 
 2. **Tidy design tokens quietly.** In the changed files (`git status
    --porcelain`, plus `git diff --name-only origin/pre-dev...HEAD`),
@@ -75,10 +76,10 @@ yourself.
 
 ## Feature branch
 
-1. **Check the build.** Run `npm run build`, `npm run lint` and
-   `npm run typecheck`. Fix every error the changes caused and rerun until
-   all three pass. Errors you can't fix: list them in plain language and
-   continue.
+1. **Check the build.** Run `npm run build`, `npm run lint`,
+   `npm run typecheck`, `npm run ds:audit` and `npm run stories:check`. Fix
+   every error the changes caused and rerun until all five pass. Errors
+   you can't fix: list them in plain language and continue.
 
 2. **Commit and push** with a short plain-language message describing the
    change:
